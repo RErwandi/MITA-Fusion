@@ -340,6 +340,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
+  gameController:
+    RawGuidValue: cba4584d21d70de4d8673107ba8ce84b
+  playerUI: {fileID: 8069792780056523792, guid: 447e2aa8d0fe1084ba6b41916b0ec0ee, type: 3}
 --- !u!114 &1569144499874871410
 MonoBehaviour:
   m_ObjectHideFlags: 0

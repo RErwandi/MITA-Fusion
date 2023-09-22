@@ -8,14 +8,12 @@ using UnityEngine.SceneManagement;
 
 namespace Mita
 {
-    public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
+    public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         [SerializeField] private NetworkPrefabRef playerPrefab;
 
         private Dictionary<PlayerRef, NetworkObject> spawnedCharacters = new();
-
         private NetworkRunner networkRunner;
-
         private void Start()
         {
             StartGame(GameMode.AutoHostOrClient);
@@ -57,6 +55,8 @@ namespace Mita
             }
         }
 
+        #region Unused Network Behaviour Callbacks
+
         public void OnInput(NetworkRunner runner, NetworkInput input) { }
 
         public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
@@ -84,6 +84,8 @@ namespace Mita
         public void OnSceneLoadDone(NetworkRunner runner) { }
 
         public void OnSceneLoadStart(NetworkRunner runner) { }
+        
+        #endregion
     }
 
 }
