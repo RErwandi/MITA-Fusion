@@ -8,11 +8,13 @@ using UnityEngine.SceneManagement;
 
 namespace Mita
 {
-    public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
+    public class NetworkManager : Singleton<NetworkManager>, INetworkRunnerCallbacks
     {
         [SerializeField] private NetworkPrefabRef playerPrefab;
 
         private Dictionary<PlayerRef, NetworkObject> spawnedCharacters = new();
+        public Dictionary<PlayerRef, NetworkObject> SpawnedCharacters => spawnedCharacters;
+        
         private NetworkRunner networkRunner;
         private void Start()
         {

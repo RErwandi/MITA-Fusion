@@ -58,8 +58,8 @@ namespace Mita
                     edgePosition.x = Mathf.Clamp01(edgePosition.x);
                     edgePosition.y = Mathf.Clamp01(edgePosition.y);
                     
-                    edgePosition.x *= Screen.width - flagRect.sizeDelta.x;
-                    edgePosition.y *= Screen.height - flagRect.sizeDelta.y;
+                    edgePosition.x *= canvasRect.sizeDelta.x - flagRect.sizeDelta.x;
+                    edgePosition.y *= canvasRect.sizeDelta.y - flagRect.sizeDelta.y;
                     
                     flagRect.anchoredPosition = edgePosition;
                 }
@@ -74,6 +74,11 @@ namespace Mita
                 // Hide the indicator if there's no target object
                 flagRect.gameObject.SetActive(false);
             }
+        }
+
+        public void SetTarget(Transform target)
+        {
+            this.target = target;
         }
     }
 }

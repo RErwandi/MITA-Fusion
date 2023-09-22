@@ -370,7 +370,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
-  moveSpeed: 10
+  moveSpeed: 20
 --- !u!114 &5647340791530827837
 MonoBehaviour:
   m_ObjectHideFlags: 0

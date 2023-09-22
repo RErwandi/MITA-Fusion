@@ -49,6 +49,11 @@ namespace Mita
             OnGetInput?.Invoke(input);
         }
 
+        public void SetAllowInput(bool value)
+        {
+            allowInput = value;
+        }
+
         #region Unused Network Runner Callbacks
         
         public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)

@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 3099202213768861883}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.7781608, y: -0.0895884, z: -1.1038162}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -48,7 +48,7 @@ MonoBehaviour:
   _interpolationDataSource: 0
   flagPrefab:
     RawGuidValue: 29a1eaa9f2e92154e97e5292b6cf16ed
-  levelTime: 5
+  levelTime: 20
   flagDistance: 20
 --- !u!114 &4772348694805060016
 MonoBehaviour:

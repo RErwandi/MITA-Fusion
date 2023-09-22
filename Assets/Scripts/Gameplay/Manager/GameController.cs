@@ -12,7 +12,8 @@ namespace Mita
         private static GameController instance;
         public static GameController Instance => instance;
 
-        private bool isGameStarted;
+        [Networked]
+        private bool IsGameStarted { get; set; }
 
         [Networked]
         private TickTimer LevelTimer { get; set; }
@@ -21,6 +22,11 @@ namespace Mita
         {
             get
             {
+                if (!IsGameStarted)
+                {
+                    return 0f;
+                }
+
                 if (LevelTimer.IsRunning)
                 {
                     return (float)LevelTimer.RemainingTime(Runner);
@@ -32,7 +38,14 @@ namespace Mita
 
         private void Awake()
         {
-            instance = this;
+            if (instance == null)
+            {
+                instance = this;
+            }
+            else
+            {
+                Runner.Despawn(Object);
+            }
         }
 
         public void StartLevel()
@@ -41,16 +54,55 @@ namespace Mita
             {
                 Debug.Log("Start Level");
                 LevelTimer = TickTimer.CreateFromSeconds(Runner, levelTime);
-                isGameStarted = true;
+                IsGameStarted = true;
                 
                 SpawnFlag();
+                RPC_AllowPlayerMovement(true);
             }
+        }
+
+        public void ResetLevel()
+        {
+            RPC_ResetLevel();
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_ResetLevel()
+        {
+            Debug.Log("Reset");
+            Player.LocalPlayer.Teleport(Vector3.zero);
+        }
+
+        public void WinLevel(Player player)
+        {
+            if (Object.HasStateAuthority)
+            {
+                IsGameStarted = false;
+                RPC_Win();
+            }
+        }
+        
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_Win()
+        {
+            Debug.Log("Win");
+            RPC_AllowPlayerMovement(false);
         }
 
         private void Draw()
         {
+            if (Object.HasStateAuthority)
+            {
+                IsGameStarted = false;
+                RPC_Draw();
+            }
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_Draw()
+        {
             Debug.Log("Draw");
-            isGameStarted = false;
+            RPC_AllowPlayerMovement(false);
         }
 
         private void SpawnFlag()
@@ -65,10 +117,16 @@ namespace Mita
 
         public override void FixedUpdateNetwork()
         {
-            if (LevelTimer.Expired(Runner) && isGameStarted)
+            if (LevelTimer.Expired(Runner) && IsGameStarted)
             {
                 Draw();
             }
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_AllowPlayerMovement(bool value)
+        {
+            Player.LocalPlayer.Input.SetAllowInput(value);
         }
     }
 }

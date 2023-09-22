@@ -462,6 +462,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   flagRect: {fileID: 5003417843540020157}
-  canvasRect: {fileID: 0}
+  canvasRect: {fileID: 8348781408628829339}
   levelText: {fileID: 55684277155165342}
   timerText: {fileID: 5664505435377024124}
