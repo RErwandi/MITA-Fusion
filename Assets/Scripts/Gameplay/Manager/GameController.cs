@@ -59,13 +59,13 @@ namespace Mita
         public override void Spawned()
         {
             Runner.AddCallbacks(this);
-            Level = 1;
         }
 
         private void StartLevel()
         {
             if (Object.HasStateAuthority)
             {
+                Level++;
                 LevelTimer = TickTimer.CreateFromSeconds(Runner, levelTime);
                 IsGameStarted = true;
                 
@@ -84,7 +84,6 @@ namespace Mita
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         private void RPC_ResetLevel()
         {
-            Level++;
             StartLevel();
         }
 
