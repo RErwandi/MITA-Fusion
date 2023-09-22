@@ -17,6 +17,8 @@ namespace Mita
         private static GameController instance;
         public static GameController Instance => instance;
 
+        private NetworkObject currentFlag;
+
         [Networked]
         private bool IsGameStarted { get; set; }
 
@@ -108,6 +110,7 @@ namespace Mita
             if (Object.HasStateAuthority)
             {
                 IsGameStarted = false;
+                Runner.Despawn(currentFlag);
                 RPC_Draw();
             }
         }
@@ -126,7 +129,7 @@ namespace Mita
             float spawnZ = transform.position.z + flagDistance * Mathf.Sin(randomAngle);
             
             var spawnPosition = new Vector3(spawnX, 0f, spawnZ);
-            Runner.Spawn(flagPrefab, spawnPosition, Quaternion.identity);
+            currentFlag = Runner.Spawn(flagPrefab, spawnPosition, Quaternion.identity);
         }
 
         public override void FixedUpdateNetwork()
