@@ -1,6 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Fusion;
 using Fusion.Sockets;
 using UnityEngine;
@@ -14,6 +14,8 @@ namespace Mita
 
         private Dictionary<PlayerRef, NetworkObject> spawnedCharacters = new();
         public Dictionary<PlayerRef, NetworkObject> SpawnedCharacters => spawnedCharacters;
+
+        public bool HasEnoughPlayer => networkRunner.ActivePlayers.Count() == 2;
         
         private NetworkRunner networkRunner;
         private void Start()

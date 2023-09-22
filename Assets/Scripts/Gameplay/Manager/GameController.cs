@@ -1,9 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Fusion;
+using Fusion.Sockets;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Mita
 {
-    public class GameController : NetworkBehaviour
+    public class GameController : NetworkBehaviour, INetworkRunnerCallbacks
     {
         [SerializeField] private NetworkPrefabRef flagPrefab;
         [SerializeField] private float levelTime = 20f;
@@ -17,6 +22,9 @@ namespace Mita
 
         [Networked]
         private TickTimer LevelTimer { get; set; }
+        
+        [Networked]
+        private int Level { get; set; }
 
         public float RemainingTime
         {
@@ -48,17 +56,24 @@ namespace Mita
             }
         }
 
-        public void StartLevel()
+        public override void Spawned()
+        {
+            Runner.AddCallbacks(this);
+            Level = 1;
+        }
+
+        private void StartLevel()
         {
             if (Object.HasStateAuthority)
             {
-                Debug.Log("Start Level");
                 LevelTimer = TickTimer.CreateFromSeconds(Runner, levelTime);
                 IsGameStarted = true;
                 
                 SpawnFlag();
-                RPC_AllowPlayerMovement(true);
             }
+            
+            LevelChangedEvent.Trigger(Level);
+            GameEvent.Trigger(Constants.EVENT_GAME_START);
         }
 
         public void ResetLevel()
@@ -69,24 +84,24 @@ namespace Mita
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         private void RPC_ResetLevel()
         {
-            Debug.Log("Reset");
-            Player.LocalPlayer.Teleport(Vector3.zero);
+            Level++;
+            StartLevel();
         }
 
-        public void WinLevel(Player player)
+        public void EndLevel(Player player)
         {
             if (Object.HasStateAuthority)
             {
                 IsGameStarted = false;
-                RPC_Win();
+                RPC_End(player);
             }
         }
         
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        private void RPC_Win()
+        private void RPC_End(Player player)
         {
-            Debug.Log("Win");
-            RPC_AllowPlayerMovement(false);
+            Debug.Log($"Game Ended");
+            GameEndedEvent.Trigger(player);
         }
 
         private void Draw()
@@ -101,8 +116,8 @@ namespace Mita
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         private void RPC_Draw()
         {
-            Debug.Log("Draw");
-            RPC_AllowPlayerMovement(false);
+            Debug.Log($"Game Draw");
+            GameEvent.Trigger(Constants.EVENT_GAME_DRAW);
         }
 
         private void SpawnFlag()
@@ -122,11 +137,51 @@ namespace Mita
                 Draw();
             }
         }
-
-        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        private void RPC_AllowPlayerMovement(bool value)
+        
+        public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
         {
-            Player.LocalPlayer.Input.SetAllowInput(value);
+            Debug.Log($"Player joined. Current players: {runner.ActivePlayers.Count()}");
+            if (runner.IsServer && runner.ActivePlayers.Count() == 2)
+            {
+                StartLevel();
+            }
         }
+        
+        public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
+        {
+            
+        }
+
+        #region Unused Network Behaviour Callbacks
+
+        public void OnInput(NetworkRunner runner, NetworkInput input) { }
+
+        public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
+
+        public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
+
+        public void OnConnectedToServer(NetworkRunner runner) { }
+
+        public void OnDisconnectedFromServer(NetworkRunner runner) { }
+
+        public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
+
+        public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }
+
+        public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
+
+        public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
+
+        public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
+
+        public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken){ }
+
+        public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ArraySegment<byte> data) { }
+
+        public void OnSceneLoadDone(NetworkRunner runner) { }
+
+        public void OnSceneLoadStart(NetworkRunner runner) { }
+        
+        #endregion
     }
 }

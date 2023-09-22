@@ -8,7 +8,8 @@ namespace Mita
 {
     public class PlayerInput : NetworkBehaviour, INetworkRunnerCallbacks
     {
-        [SerializeField] private bool allowInput = true;
+        [Networked]
+        public bool AllowInput { get; set; } = false;
         public event Action<InputData> OnGetInput;
 
         private PlayerInputActions playerInputActions;
@@ -27,16 +28,8 @@ namespace Mita
 
         public void OnInput(NetworkRunner runner, NetworkInput input)
         {
-            if (!allowInput)
-            {
-                inputData.moveDirection = Vector2.zero;
-                inputData.mousePosition = Vector2.zero;
-            }
-            else
-            {
-                inputData.moveDirection = playerInputActions.Player.MoveDirection.ReadValue<Vector2>();
-                inputData.mousePosition = playerInputActions.Player.MousePosition.ReadValue<Vector2>();
-            }
+            inputData.moveDirection = !AllowInput ? Vector2.zero : playerInputActions.Player.MoveDirection.ReadValue<Vector2>();
+            inputData.mousePosition = playerInputActions.Player.MousePosition.ReadValue<Vector2>();
             
             input.Set(inputData);
             inputData = default;
@@ -47,11 +40,6 @@ namespace Mita
             if (GetInput<InputData>(out var input) == false) return;
 
             OnGetInput?.Invoke(input);
-        }
-
-        public void SetAllowInput(bool value)
-        {
-            allowInput = value;
         }
 
         #region Unused Network Runner Callbacks
